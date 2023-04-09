@@ -1,18 +1,38 @@
-﻿Dictionary<char, int> our_elements = new Dictionary<char, int>();
-string pathtoFile = "/home/nastia/for_new_projects/encryption/our_file.txt";
-foreach (char element in File.ReadAllText(pathtoFile))
+﻿Dictionary<char, int> ourElements = new Dictionary<char, int>();
+string ourFile = File.ReadAllText(@"C:\Users\Admin\RiderProjects\encryption\encryption\our_file.txt");
+foreach (char element in ourFile)
 {
-    if (our_elements.ContainsKey(element))
+    if (ourElements.ContainsKey(element))
     {
-        our_elements[element]++;
+        ourElements[element]++;
     }
     else
     {
-        our_elements[element] = 1;
+        ourElements[element] = 1;
     }
 }
 
-foreach (var pair in our_elements)
+foreach (var pair in ourElements)
 {
     Console.WriteLine("Key = {0}, Value = {1}", pair.Key, pair.Value);
 }
+
+var queue = new Queue<Node>();
+foreach (var pair in ourElements)
+{
+    queue.Enqueue(new Node { Symbol = pair.Key, Frequency = pair.Value });
+}
+
+while (queue.Count > 1)
+{
+    var first = queue.Dequeue();
+    var second = queue.Dequeue();
+    var parent = new Node
+    {
+        Frequency = first.Frequency + second.Frequency,
+        LeftChild = first,
+        RightChild = second
+    };
+    queue.Enqueue(parent);
+}
+var root = queue.Dequeue();
