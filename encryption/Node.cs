@@ -1,9 +1,8 @@
 namespace encryption;
 
-
-
 public class Node
 {
+    
     public char Symbol;
     public int Frequency;
     public Node RightChild;
@@ -31,7 +30,7 @@ public class Node
             if (LeftChild != null)
             {
                 var leftPath = new List<int>();
-                leftPath.AddRange(path);
+                leftPath.AddRange(path); // метод який додає декілька елементів у кінець списку одночасно 
                 leftPath.Add(0);
 
                 path_left = LeftChild.Search(symbol, leftPath);
