@@ -32,7 +32,20 @@ namespace encryption
                 min_heap.Add(node);
             }
 
-            BuildHuffmanTree(min_heap, letter_freq);
+            var finalNode = BuildHuffmanTree(min_heap, letter_freq);
+            TraverseTree(finalNode, codes, "");
+
+            void TraverseTree(Node node, Dictionary<char, string> codes, string code)
+            {
+                if (node.LeftChild == null && node.RightChild == null)
+                {
+                    codes[node.Symbol] = code;
+                    return;
+                }
+
+                TraverseTree(node.LeftChild, codes, code + "0");
+                TraverseTree(node.RightChild, codes, code + "1");
+            }
             string encodedText = "";
             string originalText = File.ReadAllText(pathtoFile);
             foreach (char symbol in originalText)
@@ -42,22 +55,21 @@ namespace encryption
             }
             File.WriteAllText(@"C:\Users\Admin\RiderProjects\encryption\encryption\encoded_file.txt", encodedText);
             
-            Console.WriteLine($"Encoded Text: {encodedText}");
+            Console.WriteLine(encodedText);
             
             string decodedText = Decode(encodedText, codes);
-            Console.WriteLine($"Decoded Text: {decodedText}");
+            Console.WriteLine(decodedText);
             
-            foreach (var pair in codes)
-            {
-                Console.WriteLine($"{pair.Key}: {pair.Value}");
-            }
+            // foreach (var pair in codes)
+            // {
+            //     Console.WriteLine($"{pair.Key}: {pair.Value}");
+            // }
         }
 
         static Node BuildHuffmanTree(MinHeap min_heap, Dictionary<char, int> letter_freq)
         {
             List<Node> haffman_tree = new List<Node>();
             List<int> steps = new List<int>();
-            
 
             while (min_heap.data.Count > 1)
             {
@@ -79,12 +91,12 @@ namespace encryption
             {
                 List<int> path = Root.Search(i.Key, new List<int>());
                 steps.AddRange(path);
-                Console.Write($"{i.Key}: ");
-                foreach (var j in path)
-                {
-                    Console.Write(j);
-                }
-                Console.WriteLine();
+                // Console.Write($"{i.Key}: ");
+                // foreach (var j in path)
+                // {
+                //     Console.Write(j);
+                // }
+                // Console.WriteLine();
             }
             return min_heap.Pop();
         }
