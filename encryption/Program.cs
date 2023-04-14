@@ -2,12 +2,11 @@ namespace encryption
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Dictionary<char, int> letter_freq = new Dictionary<char, int>();
             var min_heap = new MinHeap();
-            // List<Node> haffman_tree = new List<Node>();
-            string pathtoFile = "/home/nastia/for_new_projects/encryption/our_file.txt";
+            string pathtoFile = @"C:\Users\Admin\RiderProjects\encryption\encryption\our_file.txt";
             foreach (char element in File.ReadAllText(pathtoFile))
             {
                 if (letter_freq.ContainsKey(element))
@@ -20,19 +19,7 @@ namespace encryption
                 }
             }
 
-            foreach (var pair in letter_freq)
-            {
-
-                if (pair.Key == 0x0A)
-                {
-                    Console.WriteLine($"\\n - {pair.Value}");
-                }
-                else
-                {
-                    Console.WriteLine($"{pair.Key} - {pair.Value}");
-                }
-            }
-
+            Dictionary<char, string> codes = new Dictionary<char, string>();
             foreach (var data in letter_freq)
             {
                 Node node = new Node()
@@ -43,33 +30,40 @@ namespace encryption
                     RightChild = null
                 };
                 min_heap.Add(node);
-                
             }
-            min_heap.Print();
 
-            // Build the Huffman tree
-            Node root = BuildHuffmanTree(min_heap);
-
-            // Traverse the Huffman tree and print the binary code for each character
-            Dictionary<char, string> codes = new Dictionary<char, string>();
-            // TraverseHuffmanTree(root, "", codes);
-            Console.WriteLine("Huffman codes:");
+            BuildHuffmanTree(min_heap, letter_freq);
+            string encodedText = "";
+            string originalText = File.ReadAllText(pathtoFile);
+            foreach (char symbol in originalText)
+            {
+                string code = codes[symbol];
+                encodedText += code;
+            }
+            File.WriteAllText(@"C:\Users\Admin\RiderProjects\encryption\encryption\encoded_file.txt", encodedText);
+            
+            Console.WriteLine($"Encoded Text: {encodedText}");
+            
+            string decodedText = Decode(encodedText, codes);
+            Console.WriteLine($"Decoded Text: {decodedText}");
+            
             foreach (var pair in codes)
             {
                 Console.WriteLine($"{pair.Key}: {pair.Value}");
             }
         }
 
-        static Node BuildHuffmanTree(MinHeap min_heap)
+        static Node BuildHuffmanTree(MinHeap min_heap, Dictionary<char, int> letter_freq)
         {
             List<Node> haffman_tree = new List<Node>();
+            List<int> steps = new List<int>();
+            
+
             while (min_heap.data.Count > 1)
             {
-                // Pop the two nodes with the lowest frequency
                 Node node1 = min_heap.Pop();
                 Node node2 = min_heap.Pop();
 
-                // Create a new internal node with the sum of the frequencies
                 Node internalNode = new Node()
                 {
                     Frequency = node1.Frequency + node2.Frequency,
@@ -77,16 +71,42 @@ namespace encryption
                     RightChild = node2
                 };
 
-                // Add the new internal node to the heap
                 min_heap.Add(internalNode);
                 haffman_tree.Add(internalNode);
             }
-
-            // The last remaining node in the heap is the root of the Huffman tree
+            Node Root = haffman_tree[haffman_tree.Count() - 1];
+            foreach (var i in letter_freq)
+            {
+                List<int> path = Root.Search(i.Key, new List<int>());
+                steps.AddRange(path);
+                Console.Write($"{i.Key}: ");
+                foreach (var j in path)
+                {
+                    Console.Write(j);
+                }
+                Console.WriteLine();
+            }
             return min_heap.Pop();
         }
         
-        
+        static string Decode(string encodedText, Dictionary<char, string> codes)
+        {
+            string decodedText = "";
+            string buffer = "";
+            foreach (char symbol in encodedText)
+            {
+                buffer += symbol;
+                foreach (var pair in codes)
+                {
+                    if (pair.Value == buffer)
+                    {
+                        decodedText += pair.Key;
+                        buffer = "";
+                    }
+                }
+            }
+            return decodedText;
+        }
     }
 }
 
